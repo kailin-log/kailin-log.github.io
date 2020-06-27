@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Jdbc - kai-lin&#39;s Blog</title>
+<meta name="description" content="  ">
+<meta name="generator" content="Hugo 0.72.0" />
+<link href="https://kailin-log.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://kailin-log.github.io/javase/jdbc/">
+<link rel="stylesheet" href="https://kailin-log.github.io/css/theme.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="https://kailin-log.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://kailin-log.github.io/js/bundle.js"></script><style>
+:root {}
+</style>
+<meta property="og:title" content="Jdbc" />
+<meta property="og:description" content="JDBC编程基本思路 1. 加载和注册驱动 // 加载JDBC驱动 Class&lt;?&gt; driverClass = Class.forName(&#34;com.mysql.jdbc.Driver&#34;); Driver driver = (Driver)driverClass.getDeclaredConstructor().newInstance(); // 注册驱动 DriverManager.registerDriver(driver); 由于Driver接口的驱动程序类的静态代码块中会自动调用D" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://kailin-log.github.io/javase/jdbc/" />
+<meta property="og:image" content="https://kailin-log.github.io/111.jpg"/>
+<meta property="article:published_time" content="2020-06-27T11:17:05+08:00" />
+<meta property="article:modified_time" content="2020-06-27T11:17:05+08:00" /><meta property="og:site_name" content="kai-lin&#39;s blog" />
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://kailin-log.github.io/111.jpg"/>
+
+<meta name="twitter:title" content="Jdbc"/>
+<meta name="twitter:description" content="JDBC编程基本思路 1. 加载和注册驱动 // 加载JDBC驱动 Class&lt;?&gt; driverClass = Class.forName(&#34;com.mysql.jdbc.Driver&#34;); Driver driver = (Driver)driverClass.getDeclaredConstructor().newInstance(); // 注册驱动 DriverManager.registerDriver(driver); 由于Driver接口的驱动程序类的静态代码块中会自动调用D"/>
+<meta itemprop="name" content="Jdbc">
+<meta itemprop="description" content="JDBC编程基本思路 1. 加载和注册驱动 // 加载JDBC驱动 Class&lt;?&gt; driverClass = Class.forName(&#34;com.mysql.jdbc.Driver&#34;); Driver driver = (Driver)driverClass.getDeclaredConstructor().newInstance(); // 注册驱动 DriverManager.registerDriver(driver); 由于Driver接口的驱动程序类的静态代码块中会自动调用D">
+<meta itemprop="datePublished" content="2020-06-27T11:17:05&#43;08:00" />
+<meta itemprop="dateModified" content="2020-06-27T11:17:05&#43;08:00" />
+<meta itemprop="wordCount" content="2300">
+<meta itemprop="image" content="https://kailin-log.github.io/111.jpg"/>
+
+
+
+<meta itemprop="keywords" content="" /></head>
+<body><div class="container"><header>
+<h1>kai-lin&#39;s Blog</h1>
+
+ <span class="version">Version 0.9.2</span>
+<a href="https://github.com/kailin-log" class="github"><i class="fab fa-github"></i></a>
+<p class="description">  </p>
+
+</header>
+<div class="global-menu">
+<nav>
+<ul>
+<li><a href="/">Home</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1>Jdbc</h1>
+<h3 id="jdbc编程基本思路">JDBC编程基本思路</h3>
+<h4 id="1-加载和注册驱动">1. 加载和注册驱动</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 加载JDBC驱动
+</span><span style="color:#75715e"></span>Class<span style="color:#f92672">&lt;?&gt;</span> driverClass <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.mysql.jdbc.Driver&#34;</span><span style="color:#f92672">);</span>
+Driver driver <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Driver<span style="color:#f92672">)</span>driverClass<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">().</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+<span style="color:#75715e">// 注册驱动
+</span><span style="color:#75715e"></span>DriverManager<span style="color:#f92672">.</span><span style="color:#a6e22e">registerDriver</span><span style="color:#f92672">(</span>driver<span style="color:#f92672">);</span>
+</code></pre></div><p>由于Driver接口的驱动程序类的静态代码块中会自动调用<code>DriverManager.registerDriver()</code>方法，所以加载和注册驱动只需要将驱动类加载到内存即可（加载时会自动调用静态代码块）：</p>
+<p>方法一：通过反射加载类</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.mysql.&#34;</span><span style="color:#f92672">)</span>
+</code></pre></div><p>方法二：通过类加载起加载类</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">ClassLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">getSystemClassLoader</span><span style="color:#f92672">().</span><span style="color:#a6e22e">loadClass</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.mysql.jdbc.Driver&#34;</span><span style="color:#f92672">);</span>
+</code></pre></div><h4 id="2-获取数据库链接">2. 获取数据库链接</h4>
+<ul>
+<li><code>DriverManager.getConnection(String url)</code>
+此处url格式：<code>jdbc:mysql://localhost:3306/databaseName?user=userName&amp;password=passwordValue</code></li>
+<li><code>DriverManager.getConnection(String url, String user, String password)</code></li>
+<li><code>DriverManager.getConnection(String url, Properties info)</code>通过Properties对象创建连接，Properties对象包含 “user” 和 “password” 两个属性。
+从配置文件读取数据创建Properties对象：</li>
+</ul>
+<pre><code># 配置文件config.properties
+driver=com.jdbc.mysql.Driver
+url=jdbc:mysql://localhost:3306/databaseName
+user=userName
+password=passwordValue
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Properties info <span style="color:#f92672">=</span> Properties<span style="color:#f92672">();</span>
+info<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span>ClassLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">getSystemClassLoader</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getResourceAsStream</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;config.properties&#34;</span><span style="color:#f92672">));</span>
+</code></pre></div><h4 id="3-访问数据库">3. 访问数据库</h4>
+<p>可以通过java.sql包的接口来实现对数据库的访问。</p>
+<ul>
+<li><code>Statement</code>：用于静态SQL语句并返回产生的结果。</li>
+<li><code>PreparedStatement</code>：对SQL语句语句进行预编译并存储在对象中，并且能实现<strong>高效的批处理</strong>(存在缓存语句)操作。</li>
+<li><code>CallableStatement</code>：用于执行SQL存储操作。</li>
+</ul>
+<h5 id="执行sql语句">执行SQL语句：</h5>
+<ul>
+<li><code>Statement</code>的<code>int executeUpdate(String SQL)</code>和<code>ResultSet executeQuery(String SQL)</code></li>
+<li><code>PreparedStatement</code>创建预编译SQL语句：</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 占位符使用？表示
+</span><span style="color:#75715e"></span>PreparedStatement preparedStatement <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PreparedStatement<span style="color:#f92672">(</span>sql<span style="color:#f92672">);</span>
+</code></pre></div><p>通过<code>PreparedState.setXXX(index, value)</code>来填充占位符，使用<code>int executeUpdate()</code>和<code>ResultSet executeQuery()</code></p>
+<h5 id="获取查询结果">获取查询结果</h5>
+<p>SQL查询语句的结果保存在ResultSet对象中。</p>
+<ul>
+<li>
+<p><code>ResultSet</code>对象维护一个指向当前数据行的游标，通过<code>ResultSet</code>对象的<code>boolean next()</code>方法来向下移动游标。</p>
+</li>
+<li>
+<p>通过<code>getString(String columnLabel)</code>、<code>getInt(String columnLabel)</code>&hellip;方法来获取当前数据行中指定列标签（若没有则为列名称）的值。</p>
+</li>
+<li>
+<p>通过<code>getString(String columnIndex)</code>、<code>getInt(int columnIndex)</code>&hellip;方法来获取当前数据行中指定列的值。(列索引从1开始)</p>
+</li>
+</ul>
+<p>Java类型和SQL类型的对应关系</p>
+<table>
+<thead>
+<tr>
+<th align="center">Java类型</th>
+<th align="center">SQL类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">boolean</td>
+<td align="center">BIT</td>
+</tr>
+<tr>
+<td align="center">byte</td>
+<td align="center">TINYINT</td>
+</tr>
+<tr>
+<td align="center">short</td>
+<td align="center">SMALLINT</td>
+</tr>
+<tr>
+<td align="center">int</td>
+<td align="center">INTEGER</td>
+</tr>
+<tr>
+<td align="center">long</td>
+<td align="center">BIGINT</td>
+</tr>
+<tr>
+<td align="center">String</td>
+<td align="center">CHAR, VARCHAR, LONGVARCHAR</td>
+</tr>
+<tr>
+<td align="center">byte array</td>
+<td align="center">BINARY, VAR BINARY</td>
+</tr>
+<tr>
+<td align="center">java.sql.Date</td>
+<td align="center">DATE</td>
+</tr>
+<tr>
+<td align="center">java.sql.Time</td>
+<td align="center">TIME</td>
+</tr>
+<tr>
+<td align="center">java.sql.Timestamp</td>
+<td align="center">TIMESTAMP</td>
+</tr>
+</tbody>
+</table>
+<p>使用<code>ResultSetMetaData</code>获取ResultSet对象上列的类型和属性信息的对象
+<code>ResultSetMetaData rsmd = resultSet.getMetaData();</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getColumnCount</span><span style="color:#f92672">();</span>  <span style="color:#75715e">// 获取当前ResultSet对象的列数
+</span><span style="color:#75715e"></span>String <span style="color:#a6e22e">getColumnName</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> column<span style="color:#f92672">);</span>  <span style="color:#75715e">// 获取指定列的名称
+</span><span style="color:#75715e"></span>String <span style="color:#a6e22e">getColumnLabel</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> column<span style="color:#f92672">);</span>  <span style="color:#75715e">// 获取指定列的标签
+</span></code></pre></div><h4 id="4-释放资源">4. 释放资源</h4>
+<p>创建的<code>Connection</code>、<code>Statement</code>、<code>ResultSet</code>对象，用完之后需要调用其<code>close()</code>方法来释放资源。</p>
+<h3 id="批处理">批处理</h3>
+<p>需要使用批处理时，连接mysql的url格式:</p>
+<p><code>jdbc:mysql://localhost:3306/database?rewriteBatchedStatements=true</code></p>
+<p>使用<code>PreparedStatement</code>对象实现批处理：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addBatch</span><span style="color:#f92672">()</span>  <span style="color:#75715e">// 将一组参数加入到PreparedStatement对象的批处理命令中
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">executeBatch</span><span style="color:#f92672">()</span> <span style="color:#75715e">// 执行批量处理语句
+</span></code></pre></div><p><code>PreparedStatement</code>对象实现的批处理针对的是一个SQL语句的批量传参。</p>
+<p>若要实现SQL语句的批量处理，可以使用<code>Statement</code>的批处理语句：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addBatch</span><span style="color:#f92672">(</span>String sql<span style="color:#f92672">)</span>  <span style="color:#75715e">// 将一条SQL语句加入到Statement对象的批处理命令中
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">executeBatch</span><span style="color:#f92672">()</span> <span style="color:#75715e">// 执行批量处理语句
+</span></code></pre></div><h3 id="事务">事务</h3>
+<p>JDBC中创建一个<code>Connection</code>对象，默认情况下是自动提交事务，每次执行SQL语句就会提交给数据库，不会回滚。</p>
+<p>将多条SQL指令作为一个事务：</p>
+<ol>
+<li>取消自动提交事务：<code>Connection.setAutoCommit(false)</code></li>
+<li>在一个事务的所有SQL语句都执行完毕后调用<code>Connection.commit()</code>提交事务</li>
+<li>当某一个SQL语句执行失败时，调用<code>Connection.rollback()</code>回滚事务</li>
+<li>恢复自动提交事务：<code>Connection.setAutoCommit(true)</code>
+事务的隔离级别：</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Connection<span style="color:#f92672">.</span><span style="color:#a6e22e">TRANSACTION_READ_UNCOMMITTED</span> <span style="color:#75715e">// 隔离级别：1（一般不用）
+</span><span style="color:#75715e"></span>Connection<span style="color:#f92672">.</span><span style="color:#a6e22e">TRANSACTION_READ_COMMITTED</span> <span style="color:#75715e">// 隔离级别：2
+</span><span style="color:#75715e"></span>Connection<span style="color:#f92672">.</span><span style="color:#a6e22e">TRANSACTION_REPEATABLE_READ</span> <span style="color:#75715e">// 隔离级别：4
+</span><span style="color:#75715e"></span>Connection<span style="color:#f92672">.</span><span style="color:#a6e22e">TRANSACTION_SERIALIZABLE</span> <span style="color:#75715e">// 隔离级别：8（一般不用）
+</span></code></pre></div><p>读取<code>Connection</code>对象的隔离级别：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getTransactionIsolation</span><span style="color:#f92672">();</span>
+</code></pre></div><p>设置<code>Connection</code>对象的隔离级别：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setTransactionIsolation</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> level<span style="color:#f92672">);</span>
+</code></pre></div><h3 id="数据库连接池">数据库连接池</h3>
+<h5 id="基本思想">基本思想：</h5>
+<p>为数据库建立一个“缓冲池”，在缓冲池中放入一定数量的<code>Connection</code>对象，每次需要建立数据库连接时，就从缓冲池中取出一个连接，使用完毕后再将连接放回缓冲池中。数据库连接池负责分配、管理和释放数据库连接。</p>
+<h5 id="数据库连接池技术的优点">数据库连接池技术的优点：</h5>
+<ul>
+<li>
+<p>资源重用。不需要每一个需要连接时就创建一个，而是直接从连接池中取出一个，减少了创建连接和释放的过程。</p>
+</li>
+<li>
+<p>更快的系统响应速度。减少了创建和释放连接的时间开销。</p>
+</li>
+<li>
+<p>新的资源分配手段。通过限制应用程序的最大连接数来避免数据库资源被独占。</p>
+</li>
+<li>
+<p>统一的连接管理，避免数据库链接的泄露。</p>
+</li>
+</ul>
+<h5 id="开源数据库连接池">开源数据库连接池</h5>
+<ul>
+<li>DBCP数据库连接池</li>
+<li>C3P0数据库连接池</li>
+<li>Druid数据库连接池</li>
+</ul>
+<p>数据库连接池（数据源）使用javax.sql.DataSource接口来表示</p>
+<h6 id="使用druid数据库连接池为例">使用Druid数据库连接池为例：</h6>
+<p>配置Druid数据库链接池</p>
+<pre><code># jdbc.properties配置文件
+driverClassName=com.mysql.jdbc.Driver  # 驱动类型
+url=jdbc:mysql://127.0.0.1:3306/aa  # 连接的数据库url
+username=root  # 用户名
+password=abc123  # 密码
+initialSize=5  #初始连接池中连接数
+maxActive=10  # 最大的连接数
+maxWait=3000  # 等待连接池分配连接的最大时长
+maxIdle=8  # 连接池中最大活跃的连接数，连接池最多保存的空闲连接数
+minIdle=3  # 连接池中最小活跃的连接数，连接池最少保存的空闲连接数
+</code></pre><p>获取Druid数据库连接池</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Properties info <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Properties<span style="color:#f92672">();</span>
+info<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span>ClassLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">getSystemResourceAsStream</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;jdbc.properties&#34;</span><span style="color:#f92672">));</span>
+DataSource druidSource <span style="color:#f92672">=</span> DruidDataSourceFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">createDataSource</span><span style="color:#f92672">(</span>info<span style="color:#f92672">);</span>
+
+<span style="color:#75715e">// 获取连接
+</span><span style="color:#75715e"></span>Connection conn <span style="color:#f92672">=</span> druidSource<span style="color:#f92672">.</span><span style="color:#a6e22e">getConnection</span><span style="color:#f92672">();</span>
+
+<span style="color:#75715e">// 释放连接（不是真正的释放连接，是将连接还回连接池）
+</span><span style="color:#75715e"></span>conn<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</code></pre></div><div class="edit-meta">
+Last updated on 27 Jun 2020
+
+
+<br>
+Published on 27 Jun 2020
+<br><a href="https://github.com/kailin-log/kailin-log.github.io/edit/master/content/Javase%5cjdbc.md" class="edit-page"><i class="fas fa-pen-square"></i> Edit on GitHub</a></div><nav class="pagination"><a class="nav nav-prev" href="https://kailin-log.github.io/javase/" title="Javases"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Javases</a>
+<a class="nav nav-next" href="https://kailin-log.github.io/spring-boot/" title="Spring-boots">Next - Spring-boots <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer></footer>
+</main><div class="sidebar">
+
+<nav class="open-menu">
+<ul>
+<li class=""><a href="https://kailin-log.github.io">Home</a></li>
+
+<li class="parent"><a href="https://kailin-log.github.io/javase/">Javases</a>
+  
+<ul class="sub-menu">
+<li class="active"><a href="https://kailin-log.github.io/javase/jdbc/">Jdbc</a></li>
+</ul>
+  
+</li>
+
+<li class=""><a href="https://kailin-log.github.io/spring-boot/">Spring-boots</a>
+  
+<ul class="sub-menu">
+<li class=""><a href="https://kailin-log.github.io/spring-boot/ioc%E5%AE%B9%E5%99%A8/">IoC容器</a></li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+</div>
+</body>
+</html>

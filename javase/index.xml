@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>kai-lin&#39;s Blog</title>
-    <link>https://kailin-log.github.io/</link>
-    <description>Recent content on kai-lin&#39;s Blog</description>
+    <title>Javases on kai-lin&#39;s Blog</title>
+    <link>https://kailin-log.github.io/javase/</link>
+    <description>Recent content in Javases on kai-lin&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Sat, 27 Jun 2020 11:17:05 +0800</lastBuildDate>
     
-	<atom:link href="https://kailin-log.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://kailin-log.github.io/javase/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://kailin-log.github.io/javase/jdbc/</guid>
       <description>JDBC编程基本思路 1. 加载和注册驱动 // 加载JDBC驱动 Class&amp;lt;?&amp;gt; driverClass = Class.forName(&amp;#34;com.mysql.jdbc.Driver&amp;#34;); Driver driver = (Driver)driverClass.getDeclaredConstructor().newInstance(); // 注册驱动 DriverManager.registerDriver(driver); 由于Driver接口的驱动程序类的静态代码块中会自动调用D</description>
-    </item>
-    
-    <item>
-      <title>IoC容器</title>
-      <link>https://kailin-log.github.io/spring-boot/ioc%E5%AE%B9%E5%99%A8/</link>
-      <pubDate>Mon, 22 Jun 2020 22:04:58 +0800</pubDate>
-      
-      <guid>https://kailin-log.github.io/spring-boot/ioc%E5%AE%B9%E5%99%A8/</guid>
-      <description>IoC容器介绍 ​ Spring把每一个要管理的对象成为Spring Bean，Spring IoC容器是管理Spring Bean的容器。 所有的Io</description>
     </item>
     
   </channel>
